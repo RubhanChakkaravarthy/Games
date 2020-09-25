@@ -1,0 +1,11 @@
+-- Window Resolution
+WINDOW_WIDTH = 1280
+WINDOW_HEIGHT = 720
+
+-- Virtual Resolution
+VIRTUAL_WIDTH = 512
+VIRTUAL_HEIGHT = 288
+
+
+-- Constants
+BACKGROUND_SCROLL_X = 80
