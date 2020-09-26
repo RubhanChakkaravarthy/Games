@@ -4,8 +4,13 @@ function StartState:init()
     self.transitionAlpha = 1
     self.LabelPosition = {
         x = 0,
-        y = -80
+        y = -64
     }
+end
+
+function StartState:enter(params)
+    self.level = params.level
+    self.board = Board(VIRTUAL_WIDTH / 2 - 48, -16, self.level)
 
     -- fade out the white rect
     Timer.tween(1, {
@@ -14,10 +19,10 @@ function StartState:init()
     :finish(function ()
         -- slide down the start label to the middle
         Timer.tween(0.25, {
-            [self.LabelPosition] = {y = VIRTUAL_HEIGHT/2 - 40}
+            [self.LabelPosition] = {y = VIRTUAL_HEIGHT/2 - 32}
         }):finish(function ()
             -- pause in the middle for a second
-            Timer.after(1, function() 
+            Timer.after(1, function()
                 -- again slide down to the bottom
                 Timer.tween(0.25, {
                     [self.LabelPosition] = {y = VIRTUAL_HEIGHT}
@@ -33,10 +38,6 @@ function StartState:init()
     end)
 end
 
-function StartState:enter(params)
-    self.level = params.level
-end
-
 function StartState:update(dt)
     Timer.update(dt)
 end
@@ -46,8 +47,8 @@ function StartState:render()
     love.graphics.rectangle('fill', 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
 
     love.graphics.setColor(0.4, 0.7, 1, 1)
-    love.graphics.rectangle('fill', self.LabelPosition.x, self.LabelPosition.y, VIRTUAL_WIDTH, 80)
+    love.graphics.rectangle('fill', self.LabelPosition.x, self.LabelPosition.y, VIRTUAL_WIDTH, 64)
     love.graphics.setColor(1, 1, 1, 1)
     love.graphics.setFont(gFonts['large'])
-    love.graphics.printf('Level ' .. tostring(self.level), 0, self.LabelPosition.y + 25, VIRTUAL_WIDTH, 'center')
+    love.graphics.printf('Level ' .. tostring(self.level), 0, self.LabelPosition.y + 16, VIRTUAL_WIDTH, 'center')
 end

@@ -3,7 +3,7 @@ require 'src/dependencies'
 function love.load()
     love.window.setTitle("Match 3")
     love.graphics.setDefaultFilter('nearest', 'nearest')
-   
+
     math.randomseed(os.time())
 
     -- setting up virtual resolution
@@ -86,6 +86,16 @@ function love.draw()
     love.graphics.draw(gTextures['background'], backgroundX, 0)
 
     gStateMachine:render()
+    -- local x = 0
+    -- local y = 0
+    -- for k, tiles in pairs(gFrames['tiles']) do
+    --     for n, tile in pairs(tiles) do
+    --         love.graphics.draw(gTextures['main'], gFrames['tiles'][k][n], x, y)
+    --         x = x + 32
+    --     end
+    --     x = 0
+    --     y = y + 32
+    -- end
 
     push:finish()
 end

@@ -12,7 +12,8 @@ require 'src/util'
 require 'src/states/BaseState'
 require 'src/states/TitleState'
 require 'src/states/StartState'
-require 'src/state/PlayState'
+require 'src/states/PlayState'
 
 -- game objects
 require 'src/Board'
+require 'src/Tile'
