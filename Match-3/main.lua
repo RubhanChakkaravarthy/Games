@@ -50,9 +50,7 @@ function love.load()
         ['GameOver'] = function() return GameOverState() end,
     }
 
-    gStateMachine:change('GameOver', {
-        score = 300
-    })
+    gStateMachine:change('Title')
 
     backgroundX = 0
 
