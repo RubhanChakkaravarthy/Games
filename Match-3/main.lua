@@ -33,6 +33,7 @@ function love.load()
         ['tick'] = love.audio.newSource('sounds/clock.wav', 'static'),
         ['err'] = love.audio.newSource('sounds/error.wav', 'static'),
         ['game-over'] = love.audio.newSource('sounds/game-over.wav', 'static'),
+        ['next-level'] = love.audio.newSource('sounds/next-level.wav', 'static'),
         ['select'] = love.audio.newSource('sounds/select.wav', 'static'),
         ['music'] = love.audio.newSource('sounds/music2.mp3', 'static'),
         ['match'] = love.audio.newSource('sounds/match.wav', 'static'),
@@ -46,9 +47,12 @@ function love.load()
         ['Title'] = function() return TitleState() end,
         ['Start'] = function() return StartState() end,
         ['Play'] = function() return PlayState() end,
+        ['GameOver'] = function() return GameOverState() end,
     }
 
-    gStateMachine:change('Title')
+    gStateMachine:change('GameOver', {
+        score = 300
+    })
 
     backgroundX = 0
 
@@ -86,16 +90,6 @@ function love.draw()
     love.graphics.draw(gTextures['background'], backgroundX, 0)
 
     gStateMachine:render()
-    -- local x = 0
-    -- local y = 0
-    -- for k, tiles in pairs(gFrames['tiles']) do
-    --     for n, tile in pairs(tiles) do
-    --         love.graphics.draw(gTextures['main'], gFrames['tiles'][k][n], x, y)
-    --         x = x + 32
-    --     end
-    --     x = 0
-    --     y = y + 32
-    -- end
 
     push:finish()
 end

@@ -54,7 +54,8 @@ function TitleState:update(dt)
                 [self] = {transitionAlpha = 1}
             }):finish(function ()
                 gStateMachine:change('Start', {
-                    level = 1
+                    level = 1,
+                    score = 0
                 })
                 -- remove the timer after moving from the state
                 self.timer:remove()
@@ -106,12 +107,4 @@ function drawMenu()
     drawTextShadow('Exit', VIRTUAL_HEIGHT/2 + 60, 2)
     love.graphics.setColor(99/255, 155/255, 1, 1)
     love.graphics.printf('Exit', 0, VIRTUAL_HEIGHT/2 + 60, VIRTUAL_WIDTH, 'center')
-end
-
-function drawTextShadow(text, y, layer)
-    for i = 1, layer do
-        love.graphics.setColor(0.4, 0.4, 0.4, 1)
-        love.graphics.printf(text, i, y + i, VIRTUAL_WIDTH, 'center')
-    end
-    love.graphics.setColor(1, 1, 1, 1)
 end

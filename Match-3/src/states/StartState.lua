@@ -10,6 +10,7 @@ end
 
 function StartState:enter(params)
     self.level = params.level
+    self.score = params.score
     self.board = Board(VIRTUAL_WIDTH / 2 - 48, -16, self.level)
 
     -- fade out the white rect
@@ -30,6 +31,7 @@ function StartState:enter(params)
                 :finish(function ()
                     gStateMachine:change('Play', {
                         level = self.level,
+                        score = self.score,
                         board = self.board
                     })
                 end)

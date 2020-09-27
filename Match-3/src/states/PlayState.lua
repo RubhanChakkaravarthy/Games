@@ -1,14 +1,13 @@
 PlayState = Class{ __includes = BaseState }
 
-function PlayState:init(params)
-    self.score = 0
+function PlayState:init()
     self.selector = {
         gridX = 1,
         gridY = 1
     }
     self.inputLocked = false
     self.needsReswap = false
-    self.time = 60
+    self.time = 5
 
     self.timer = Timer.every(1, function ()
         self.time = self.time - 1
@@ -21,12 +20,29 @@ end
 function PlayState:enter(params)
     self.level = params.level
     self.board = params.board
-    self.scoreGoal = self.level *  1.25 * 600
+    self.score = params.score
+    self.scoreGoal = self.level *  1.25 * 1000
 
 end
 
 function PlayState:update(dt)
-    self.board:update(dt)
+
+    if self.time <= 0 then
+        Timer.clear()
+        gSounds['game-over']:play()
+        gStateMachine:change('GameOver', {
+            score = self.score
+        })
+    end
+
+    if self.score >= self.scoreGoal then
+        Timer.clear()
+        gSounds['next-level']:play()
+        gStateMachine:change('Start', {
+            level = self.level + 1,
+            score = self.score
+        })
+    end
 
     -- Input handling
     -- Selector Movement
@@ -71,7 +87,7 @@ function PlayState:update(dt)
 
                 -- swap the tiles and set reswaping to true because player made the action
                 self.board:swapTiles(tile1, tile2):finish(function ()
-                    self.needReswap = true
+                    self.needsReswap = true
                     self:calculateMatches()
                 end)
                 self.highlightedTile = nil
@@ -89,6 +105,10 @@ function PlayState:calculateMatches()
     if matches then
         gSounds['match']:stop()
         gSounds['match']:play()
+
+        for k, match in pairs(matches) do
+            self.score = self.score + (#match - 3) * 50 + match[1].design * 100
+        end
     
         self.board:removeMatches()
 
@@ -104,6 +124,7 @@ function PlayState:calculateMatches()
         if self.needsReswap then
             local tile1 = self.board.tiles[self.selector.gridY][self.selector.gridX]
             local tile2 = self.reswapTile
+            print('Reached Here 2')
             gSounds['err']:play()
             Timer.after(0.1, function ()
                 self.board:swapTiles(tile1, tile2):finish(function ()
@@ -143,8 +164,4 @@ function PlayState:drawTimerMenu()
     love.graphics.printf('Score : ' ..tostring(self.score), 20, 54, 182, 'center')
     love.graphics.printf('Goal : ' ..tostring(self.scoreGoal), 20, 80, 182, 'center')
     love.graphics.printf('Time : ' ..tostring(self.time), 20, 108, 182, 'center')
-end
-
-function PlayState:exit()
-    self.timer:remove()
 end

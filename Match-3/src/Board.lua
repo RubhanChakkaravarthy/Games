@@ -6,6 +6,8 @@ function Board:init(x, y, level)
     self.level = level
     self.matches = {}
 
+    self.highestDesign = math.min(6, math.floor(self.level * 3/4))
+
     self:initialize()
 end
 

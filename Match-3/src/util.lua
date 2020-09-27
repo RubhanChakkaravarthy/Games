@@ -27,6 +27,14 @@ function GenerateTileQuads(image, tileWidth, tileHeight)
     return tiles
 end
 
+function drawTextShadow(text, y, layer)
+    for i = 1, layer do
+        love.graphics.setColor(0.4, 0.4, 0.4, 1)
+        love.graphics.printf(text, i, y + i, VIRTUAL_WIDTH, 'center')
+    end
+    love.graphics.setColor(1, 1, 1, 1)
+end
+
 function gridXtoTileX(gridX)
     return gridX * 32 + (VIRTUAL_WIDTH/2 - 48)
 end

@@ -13,6 +13,7 @@ require 'src/states/BaseState'
 require 'src/states/TitleState'
 require 'src/states/StartState'
 require 'src/states/PlayState'
+require 'src/states/GameOverState'
 
 -- game objects
 require 'src/Board'
