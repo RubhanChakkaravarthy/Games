@@ -34,7 +34,7 @@ function love.load()
         ['err'] = love.audio.newSource('sounds/error.wav', 'static'),
         ['game-over'] = love.audio.newSource('sounds/game-over.wav', 'static'),
         ['select'] = love.audio.newSource('sounds/select.wav', 'static'),
-        ['music'] = love.audio.newSource('sounds/music.mp3', 'static'),
+        ['music'] = love.audio.newSource('sounds/music2.mp3', 'static'),
         ['match'] = love.audio.newSource('sounds/match.wav', 'static'),
     }
 

@@ -7,6 +7,7 @@ function PlayState:init(params)
         gridY = 1
     }
     self.inputLocked = false
+    self.needsReswap = false
     self.time = 60
 
     self.timer = Timer.every(1, function ()
@@ -65,26 +66,12 @@ function PlayState:update(dt)
                 local tile1 = self.board.tiles[y][x]
                 local tile2 = self.highlightedTile
 
-                -- swap position information
-                temp = {
-                    x = tile1.x, 
-                    y = tile1.y,
-                    gridX = tile1.gridX,
-                    gridY = tile1.gridY,
-                }
+                -- for later reswaping if no match found because of the following swap
+                self.reswapTile = tile1
 
-                -- swap in the board data structure
-                local tempTile = tile1
-                self.board.tiles[tile1.gridY][tile1.gridX] = tile2
-                self.board.tiles[tile2.gridY][tile2.gridX] = tempTile
-
-                -- swap the position
-                tile1.gridX, tile1.gridY = tile2.gridX, tile2.gridY
-                tile2.gridX, tile2.gridY = temp.gridX, temp.gridY
-                Timer.tween(0.2, {
-                    [tile1] = {x = tile2.x, y = tile2.y},
-                    [tile2] = {x = temp.x, y = temp.y}
-                }):finish(function ()
+                -- swap the tiles and set reswaping to true because player made the action
+                self.board:swapTiles(tile1, tile2):finish(function ()
+                    self.needReswap = true
                     self:calculateMatches()
                 end)
                 self.highlightedTile = nil
@@ -98,6 +85,7 @@ end
 function PlayState:calculateMatches()
     local matches = self.board:calculateMatches()
 
+    -- if matches found because of swaping or tile falling action
     if matches then
         gSounds['match']:stop()
         gSounds['match']:play()
@@ -106,9 +94,24 @@ function PlayState:calculateMatches()
 
         local tilesToFall = self.board:getFallingTiles()
         Timer.tween(0.25, tilesToFall):finish(function ()
+            -- going to call calculate Matches by tile falling action
+            self.needsReswap = false
             self:calculateMatches()
         end)
     else
+        -- if no match and called by swaping action
+        -- reswap the tiles to their original position
+        if self.needsReswap then
+            local tile1 = self.board.tiles[self.selector.gridY][self.selector.gridX]
+            local tile2 = self.reswapTile
+            gSounds['err']:play()
+            Timer.after(0.1, function ()
+                self.board:swapTiles(tile1, tile2):finish(function ()
+                    self.needsReswap = false
+                end)
+            end)
+        end
+        -- directly reach here if no match and called by tile falling action
         self.inputLocked = false
     end
 end

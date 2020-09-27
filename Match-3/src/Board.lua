@@ -127,7 +127,7 @@ function Board:getFallingTiles()
  
     for x = 1, 8 do
         local space = false
-        -- represent the first space position
+        -- represent the first found space position
         local spaceY = 0
         
         local y = 8
@@ -137,7 +137,7 @@ function Board:getFallingTiles()
             if space then
                 -- current position is a tile
                 if tile then
-                    -- move the tile to the first space from the bottom
+                    -- move the tile to the first found space from the bottom
                     self.tiles[spaceY][x] = tile
                     tile.gridY = spaceY
 
@@ -182,6 +182,32 @@ function Board:getFallingTiles()
         end
     end
     return tweens
+end
+
+function Board:swapTiles(tile1, tile2)
+    -- temporary swap position information
+    local temp = {
+        x = tile1.x, 
+        y = tile1.y,
+        gridX = tile1.gridX,
+        gridY = tile1.gridY,
+    }
+
+    -- swap in the board data structure
+    local tempTile = tile1
+    self.tiles[tile1.gridY][tile1.gridX] = tile2
+    self.tiles[tile2.gridY][tile2.gridX] = tempTile
+
+    -- swap the position
+    tile1.gridX, tile1.gridY = tile2.gridX, tile2.gridY
+    tile2.gridX, tile2.gridY = temp.gridX, temp.gridY
+
+    local tween = Timer.tween(0.25, {
+        [tile1] = {x = tile2.x, y = tile2.y},
+        [tile2] = {x = temp.x, y = temp.y}
+    })
+
+    return tween
 end
 
 function Board:render()
