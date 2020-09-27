@@ -42,3 +42,33 @@ end
 function gridYtoTileY(gridY)
     return gridY * 32 - 16
 end
+
+function getGridPosition(mouseX, mouseY)
+    -- mouse position relative to board
+    local x = mouseX - (VIRTUAL_WIDTH/2 - 48)
+    local y = mouseY + 16
+    -- grid position
+    gridX = math.floor(x/32)
+    gridY = math.floor(y/32)
+
+    -- return false if outside of board
+    if (gridX < 1 or gridX >= 9) or (gridY < 1 or gridY >= 9) then
+        return false
+    else
+        return {x = gridX, y = gridY}
+    end
+end
+
+function mouseClickedOnTile(button)
+    -- if button was clicked
+    local click = love.mouse.wasClicked(button)
+    if click then
+        -- if button was clicked inside the board
+        local position = getGridPosition(click.x, click.y)
+        if position then
+            return true
+        else
+            return false
+        end
+    end
+end

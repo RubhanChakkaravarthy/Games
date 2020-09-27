@@ -7,7 +7,7 @@ function PlayState:init()
     }
     self.inputLocked = false
     self.needsReswap = false
-    self.time = 5
+    self.time = 60
 
     self.timer = Timer.every(1, function ()
         self.time = self.time - 1
@@ -21,7 +21,7 @@ function PlayState:enter(params)
     self.level = params.level
     self.board = params.board
     self.score = params.score
-    self.scoreGoal = self.level *  1.25 * 1000
+    self.scoreGoal = self.level *  1.25 * 600
 
 end
 
@@ -44,25 +44,16 @@ function PlayState:update(dt)
         })
     end
 
-    -- Input handling
+    -- keyboard Input handling
     -- Selector Movement
     if not self.inputLocked then
-        if love.keyboard.wasPressed('up') then
-            self.selector.gridY = math.max(1, self.selector.gridY - 1)
-            gSounds['select']:play()
-        elseif love.keyboard.wasPressed('down') then
-            self.selector.gridY = math.min(8, self.selector.gridY + 1)
-            gSounds['select']:play()
-        elseif love.keyboard.wasPressed('left') then
-            self.selector.gridX = math.max(1, self.selector.gridX - 1)
-            gSounds['select']:play()
-        elseif love.keyboard.wasPressed('right') then
-            self.selector.gridX = math.min(8, self.selector.gridX + 1)
-            gSounds['select']:play()
-        end
-
+        self:handleMouseMovementInput()
+        self:handleKeyboardMovementInput()
+        
         -- Select or deselect a tile or swap selected and highlighted tile 
-        if love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') then
+        if (love.keyboard.wasPressed('enter') or love.keyboard.wasPressed('return') 
+            or mouseClickedOnTile(1)) then
+
             local x = self.selector.gridX
             local y = self.selector.gridY
 
@@ -107,7 +98,7 @@ function PlayState:calculateMatches()
         gSounds['match']:play()
 
         for k, match in pairs(matches) do
-            self.score = self.score + (#match - 3) * 50 + match[1].design * 100
+            self.score = self.score + (#match - 3) * 100 + match[1].design * 100
         end
     
         self.board:removeMatches()
@@ -124,7 +115,6 @@ function PlayState:calculateMatches()
         if self.needsReswap then
             local tile1 = self.board.tiles[self.selector.gridY][self.selector.gridX]
             local tile2 = self.reswapTile
-            print('Reached Here 2')
             gSounds['err']:play()
             Timer.after(0.1, function ()
                 self.board:swapTiles(tile1, tile2):finish(function ()
@@ -164,4 +154,29 @@ function PlayState:drawTimerMenu()
     love.graphics.printf('Score : ' ..tostring(self.score), 20, 54, 182, 'center')
     love.graphics.printf('Goal : ' ..tostring(self.scoreGoal), 20, 80, 182, 'center')
     love.graphics.printf('Time : ' ..tostring(self.time), 20, 108, 182, 'center')
+end
+
+function PlayState:handleMouseMovementInput()
+    local x, y = push:toGame(love.mouse.getPosition())
+    local position = getGridPosition(x, y)
+    if position then
+        self.selector.gridX = position.x
+        self.selector.gridY = position.y
+    end
+end
+
+function PlayState:handleKeyboardMovementInput()
+    if love.keyboard.wasPressed('up') then
+        self.selector.gridY = math.max(1, self.selector.gridY - 1)
+        gSounds['select']:play()
+    elseif love.keyboard.wasPressed('down') then
+        self.selector.gridY = math.min(8, self.selector.gridY + 1)
+        gSounds['select']:play()
+    elseif love.keyboard.wasPressed('left') then
+        self.selector.gridX = math.max(1, self.selector.gridX - 1)
+        gSounds['select']:play()
+    elseif love.keyboard.wasPressed('right') then
+        self.selector.gridX = math.min(8, self.selector.gridX + 1)
+        gSounds['select']:play()
+    end
 end

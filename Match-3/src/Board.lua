@@ -21,7 +21,7 @@ function Board:initialize()
     for gridY = 1, 8 do
         table.insert(self.tiles, {})
         for gridX = 1, 8 do
-            table.insert(self.tiles[gridY], Tile(gridX, gridY, math.random(8), math.random(self.level)))
+            table.insert(self.tiles[gridY], Tile(gridX, gridY, math.random(8), math.random(self.highestDesign)))
         end
     end
 
@@ -174,7 +174,7 @@ function Board:getFallingTiles()
             local tile = self.tiles[y][x]
 
             if tile == nil then
-                local tile = Tile(x, y, math.random(8), math.random(self.level))
+                local tile = Tile(x, y, math.random(8), math.random(self.highestDesign))
                 tile.y = -32
                 self.tiles[y][x] = tile
                 tweens[tile] = {
@@ -216,9 +216,7 @@ function Board:render()
     -- draw board
     for y = 1, 8 do
         for x = 1, 8 do
-            if self.tiles[y][x] then
-                self.tiles[y][x]:render(self.x, self.y)
-            end
+            self.tiles[y][x]:render(self.x, self.y)
         end
     end
 end
