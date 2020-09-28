@@ -5,8 +5,28 @@ function Board:init(x, y, level)
     self.y = y
     self.level = level
     self.matches = {}
+    tileShineAlpha = {0}
 
-    self.highestDesign = math.min(6, math.floor(self.level * 3/4))
+    self.highestDesignPerColor = {
+        math.min(6, self.level),
+        math.min(6, math.max(1, math.floor(self.level * 0.8))),
+        math.min(6, math.max(1, math.floor(self.level * 0.6))),
+        math.min(6, math.max(1, math.floor(self.level * 0.4))),
+        math.min(6, math.max(1, math.floor(self.level * 0.3))),
+        math.min(6, math.max(1, math.floor(self.level * 0.2))),
+    }
+
+    -- shiny blocks alpha 
+    Timer.every(3, function ()
+        Timer.tween(1, {
+            [tileShineAlpha] = {1}
+        })
+        :finish(function () 
+            Timer.tween(1, {
+                [tileShineAlpha] = {0}
+            })
+        end)
+    end)
 
     self:initialize()
 end
@@ -21,7 +41,10 @@ function Board:initialize()
     for gridY = 1, 8 do
         table.insert(self.tiles, {})
         for gridX = 1, 8 do
-            table.insert(self.tiles[gridY], Tile(gridX, gridY, math.random(8), math.random(self.highestDesign)))
+            local color = math.random(6)
+            local design = math.random(self.highestDesignPerColor[color])
+            local shiny = math.random(10) == 1
+            table.insert(self.tiles[gridY], Tile(gridX, gridY, color, design, shiny))
         end
     end
 
@@ -35,41 +58,85 @@ function Board:calculateMatches()
     local matches = {}
     -- find match along the rows
     for y = 1, 8 do
-        local numMatches = 1
-        local TiletoMatch = self.tiles[y][1]
+        -- represent num of tiles match
+        local numMatch = 1
+        local numShiny = self.tiles[y][1].shiny and 1 or 0
+        -- represent whether the current row had already a match
+        local lastMatch = false
 
         for x = 2, 8 do
             local currentTile = self.tiles[y][x]
-            if currentTile then
+            local TiletoMatch = self.tiles[y][x - 1]
+
+            -- find the num of shiny based on preivous tile
+            if numShiny == 0 then
+                numShiny = TiletoMatch.shiny and 1 or 0
+            end
+
             if currentTile:match(TiletoMatch) then
-                -- increase numMatches until tile to match and current tile don't match
-                numMatches = numMatches + 1
+                -- increase numMatch until tile to match and current tile don't match
+                numMatch = numMatch + 1
+                -- if shiny also increase shiny
+                if currentTile.shiny == TiletoMatch.shiny then
+                    numShiny = numShiny + 1
+                end
             else
-                if numMatches >= 3 then
-                    -- if there are 3 or more tiles match add it to the matches
+                -- if there are 3 or more tiles match add it to the matches
+                if numMatch >= 3 then
                     local match = {}
-                    for i = x - 1, x - numMatches, -1 do
-                        table.insert(match, self.tiles[y][i])
-                        
+                    -- only add all the current row tiles when all the tiles matched are shiny
+                    if numShiny == numMatch then
+
+                        -- if already a match in the row then remove to the match
+                        -- to account for full row remove
+                        if lastMatch then
+                            table.remove(matches, #matches)
+                            lastMatch = false
+                        end
+
+                        for i = 1, 8 do
+                            table.insert(match, self.tiles[y][i])
+                        end
+                        table.insert(matches, match)
+                        -- all the row tiles are added 
+                        -- no need to check any further tiles in the same row
+                        break
+                    else
+                        for i = x - 1, x - numMatch, -1 do
+                            table.insert(match, self.tiles[y][i])
+                        end
+                        lastMatch = true
+                        table.insert(matches, match)
                     end
-                    table.insert(matches, match)
                 end
 
                 if x >= 7 then
                     break
                 end
 
-                -- reset the num of matches and change match color
-                numMatches = 1
-                TiletoMatch = currentTile
-            end
+                -- reset the num of matches and num of shiny 
+                -- so next iteration start with correct counts
+                numMatch = 1
+                numShiny = 0
             end
         end
 
-        if numMatches >= 3 then
+        -- handle row end matching
+        if numMatch >= 3 then
             local match = {}
-            for x = 8, 8 - numMatches + 1, -1 do
-                table.insert(match, self.tiles[y][x])
+            if numShiny == numMatch then
+
+                if lastMatch then
+                    table.remove(matches, #matches)
+                end
+
+                for i = 1, 8 do
+                    table.insert(match, self.tiles[y][i])
+                end
+            else
+                for i = 8, 8 - numMatch + 1, -1 do
+                    table.insert(match, self.tiles[y][i])
+                end
             end
             table.insert(matches, match)
         end
@@ -77,45 +144,94 @@ function Board:calculateMatches()
     
     -- find match along the column
     for x = 1, 8 do
-        local numMatches = 1
-        local TiletoMatch = self.tiles[1][x]
+        local numMatch = 1
+        local numShiny = self.tiles[1][x].shiny and 1 or 0
+        local lastMatch = false
 
         for y = 2, 8 do
             local currentTile = self.tiles[y][x]
-            if currentTile then
-            if currentTile and currentTile:match(TiletoMatch) then
-                -- increase numMatches until tile to match and current tile don't match
-                numMatches = numMatches + 1
-            else
-                if numMatches >= 3 then
-                    local match = {}
-                    for i = y - 1, y - numMatches, -1 do
-                        table.insert(match, self.tiles[i][x])
-                        
-                    end
-                    table.insert(matches, match)
-                end
-                -- reset the num of matches and change match color
-                numMatches = 1
-                TiletoMatch = currentTile
+            local TiletoMatch = self.tiles[y - 1][x]
+            
+            -- find the num of shiny based on previous shiny
+            if numShiny == 0 then
+                numShiny = TiletoMatch.shiny and 1 or 0
             end
+            
+            if currentTile and currentTile:match(TiletoMatch) then
+                -- increase numMatch until tile to match and current tile don't match
+                numMatch = numMatch + 1
+                -- if shiny also increase shiny
+                if currentTile.shiny == TiletoMatch.shiny then
+                    numShiny = numShiny + 1
+                end
+            else
+                if numMatch >= 3 then
+                    local match = {}
+                    -- only add all the current column tiles when all the tiles matched are shiny
+                    if numShiny == numMatch then
+
+                        if lastMatch then
+                            table.remove(matches, #matches)
+                            lastMatch = false
+                        end
+
+                        for i = 1, 8 do
+                            table.insert(match, self.tiles[i][x])
+                        end
+                        table.insert(matches, match)
+                        -- all the column tiles are added 
+                        -- no need to check any further tiles in the same column
+                        break
+                    else
+                        for i = y - 1, y - numMatch, -1 do
+                            table.insert(match, self.tiles[i][x])
+                            
+                        end
+                        lastMatch = true
+                        table.insert(matches, match)
+                    end
+                end
+
+                if y >= 7 then
+                    break
+                end
+
+                -- reset the num of matches and num of shiny 
+                -- so next iteration start with correct counts
+                numMatch = 1
+                numShiny = 0
             end
         end
 
-        if numMatches >= 3 then
+
+        -- handle column end matching
+        if numMatch >= 3 then
             local match = {}
-            for y = 8, 8 - numMatches + 1, -1 do
-                table.insert(match, self.tiles[y][x])
+            if numMatch == numShiny then
+
+                if lastMatch then
+                    table.remove(matches, #matches)
+                end
+
+                for i = 1, 8 do
+                    table.insert(match, self.tiles[i][x])
+                end
+            else
+                for i = 8, 8 - numMatch + 1, -1 do
+                    table.insert(match, self.tiles[i][x])
+                end
             end
             table.insert(matches, match)
         end
     end
     self.matches = matches
+    
     return #self.matches > 0 and self.matches or false
 end
 
 function Board:removeMatches()
-    for k, match in pairs(self.matches) do
+
+    for m, match in pairs(self.matches) do
         for n, tile in pairs(match) do
             self.tiles[tile.gridY][tile.gridX] = nil
         end
@@ -174,7 +290,10 @@ function Board:getFallingTiles()
             local tile = self.tiles[y][x]
 
             if tile == nil then
-                local tile = Tile(x, y, math.random(8), math.random(self.highestDesign))
+                local color = math.random(6)
+                local design = math.random(self.highestDesignPerColor[color])
+                local shiny = math.random(10) == 1
+                local tile = Tile(x, y, color, design, shiny)
                 tile.y = -32
                 self.tiles[y][x] = tile
                 tweens[tile] = {

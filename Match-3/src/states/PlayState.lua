@@ -21,11 +21,20 @@ function PlayState:enter(params)
     self.level = params.level
     self.board = params.board
     self.score = params.score
-    self.scoreGoal = self.level *  1.25 * 600
+    self.scoreGoal = self.level *  1.25 * 1000
 
 end
 
 function PlayState:update(dt)
+
+    if love.keyboard.wasPressed('escape') then
+        self.paused = not self.paused
+        return
+    end
+
+    if self.paused then
+        return
+    end
 
     if self.time <= 0 then
         Timer.clear()
@@ -97,14 +106,19 @@ function PlayState:calculateMatches()
         gSounds['match']:stop()
         gSounds['match']:play()
 
-        for k, match in pairs(matches) do
-            self.score = self.score + (#match - 3) * 100 + match[1].design * 100
+        for m, match in pairs(matches) do
+            if #match == 8 then
+                self.score = self.score + 800
+            else
+                self.score = self.score + (#match - 3) * 100 + match[1].design * 100
+            end
+            self.time = self.time + 1
         end
     
         self.board:removeMatches()
 
         local tilesToFall = self.board:getFallingTiles()
-        Timer.tween(0.25, tilesToFall):finish(function ()
+        Timer.tween(0.5, tilesToFall):finish(function ()
             -- going to call calculate Matches by tile falling action
             self.needsReswap = false
             self:calculateMatches()
@@ -128,6 +142,16 @@ function PlayState:calculateMatches()
 end
 
 function PlayState:render()
+
+    if self.paused then
+        love.graphics.setColor(0, 0, 0, 0.5)
+        love.graphics.rectangle('fill', 0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
+        love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setFont(gFonts['large'])
+        love.graphics.printf('PAUSED', 0, VIRTUAL_HEIGHT/2, VIRTUAL_WIDTH, 'center')
+        return
+    end
+
     self.board:render()
     -- draw selector
     love.graphics.setColor(0.8, 0.2, 0.1, 1)
@@ -137,10 +161,12 @@ function PlayState:render()
 
     -- draw a overlay on the highlighted tile
     if self.highlightedTile then
-        love.graphics.setColor(1, 1, 1, 0.6)
+        love.graphics.setBlendMode('add')
+        love.graphics.setColor(1, 1, 1, 0.4)
         love.graphics.rectangle('fill', gridXtoTileX(self.highlightedTile.gridX), 
             gridYtoTileY(self.highlightedTile.gridY), 32, 32, 6)
         love.graphics.setColor(1, 1, 1, 1)
+        love.graphics.setBlendMode('alpha')
     end
     self:drawTimerMenu()
 end

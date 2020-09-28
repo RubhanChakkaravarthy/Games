@@ -6,7 +6,7 @@ function GenerateTileQuads(image, tileWidth, tileHeight)
 
     local tiles = {}
     local x, y = 0, 96
-    for i = 1, 4 do
+    for i = 1, 3 do
         local subTiles = {}
         for j = 1, 6 do
             subTiles[j] = love.graphics.newQuad(x, y, tileWidth, tileHeight, image:getDimensions())
