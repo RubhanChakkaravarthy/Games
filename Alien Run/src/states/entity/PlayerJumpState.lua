@@ -32,7 +32,7 @@ function PlayerJumpState:update(dt)
     local tileRight = self.player.map:pointToTile(self.player.x + self.player.width - 3, self.player.y)
 
     -- if we get a collision up top, go into the falling state immediately
-    if (tileLeft and tileRight) and (tileLeft:collidable() or tileRight:collidable()) then
+    if (tileLeft and tileRight) and (tileLeft.collidable or tileRight.collidable) then
         self.player.dy = 0
         self.player:changeState('falling')
 

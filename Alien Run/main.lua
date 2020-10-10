@@ -45,6 +45,7 @@ end
 
 
 function love.update(dt)
+
     gStateMachine:update(dt)
 
     love.keyboard.keysPressed = {}

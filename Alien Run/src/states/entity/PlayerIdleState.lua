@@ -13,6 +13,18 @@ end
 
 function PlayerIdleState:update(dt)
 
+    local tileBottomLeft = self.player.map:pointToTile(self.player.x + 2, self.player.y + self.player.height)
+    local tileBottomRight = self.player.map:pointToTile(self.player.x + self.player.width - 2, self.player.y + self.player.height)
+
+    -- if not debug then
+    --     if (tileBottomLeft and tileBottomRight) and (tileBottomLeft.hurtable or tileBottomRight.hurtable) then
+    --         gSounds['death']:play()
+    --         gStateMachine:change('game-over', {
+    --             score = self.player.score
+    --         })
+    --     end
+    -- end
+
     if love.keyboard.isDown('left') or love.keyboard.isDown('right') then
         self.player:changeState('walking')
     end

@@ -15,7 +15,7 @@ function Player:checkLeftCollisions(dt)
     local tileBottomLeft = self.map:pointToTile(self.x + 1, self.y + self.height - 1)
 
     -- place player outside the X bounds on one of the tiles to reset any overlap
-    if (tileTopLeft and tileBottomLeft) and (tileTopLeft:collidable() or tileBottomLeft:collidable()) then
+    if (tileTopLeft and tileBottomLeft) and (tileTopLeft.collidable or tileBottomLeft.collidable) then
         self.x = (tileTopLeft.x - 1) * TILE_SIZE + tileTopLeft.width - 1
     else
         
@@ -37,7 +37,7 @@ function Player:checkRightCollisions(dt)
     local tileBottomRight = self.map:pointToTile(self.x + self.width - 1, self.y + self.height - 1)
 
     -- place player outside the X bounds on one of the tiles to reset any overlap
-    if (tileTopRight and tileBottomRight) and (tileTopRight:collidable() or tileBottomRight:collidable()) then
+    if (tileTopRight and tileBottomRight) and (tileTopRight.collidable or tileBottomRight.collidable) then
         self.x = (tileTopRight.x - 1) * TILE_SIZE - self.width
     else
         

@@ -10,7 +10,7 @@ function PlayState:init()
 
     self.cameraPosition = 0
     self.cameraScrollSpeed = 0
-    -- self.LastCameraPositon = self.cameraPosition
+
 end
 
 function PlayState:enter(def)
@@ -50,24 +50,6 @@ function PlayState:update(dt)
     self.player:update(dt)
     self.level:update(dt)
 
-    local tileBottomLeft = self.tileMap:pointToTile(self.player.x + 2, self.player.y + self.player.height + 2)
-    local tileBottomRight = self.tileMap:pointToTile(self.player.x + self.player.width - 2, self.player.y + self.player.height + 2)
-
-    if love.keyboard.wasPressed('r') then
-        print_r(tileBottomLeft)
-        print_r(tileBottomRight)
-    end
-    
-    if (tileBottomLeft and tileBottomRight) and (tileBottomLeft.hurtable or tileBottomRight.hurtable) then
-        gSounds['death']:play()
-        gStateMachine:change('game-over', {
-            score = self.player.score
-        })
-    end
-
-    -- for debugging
-    -- self.player.x = math.min(self.mapWidth * TILE_SIZE - 16, math.max(self.LastCameraPosition, self.player.x))
-
     self.player.x = math.min(self.mapWidth * TILE_SIZE - 16, self.player.x)
     if self.player.x < self.cameraPosition - 8 then
         gSounds['death']:play()
@@ -87,10 +69,6 @@ end
 
 function PlayState:updateCamera(dt)
 
-    -- for debugging
-    -- self.cameraPosition = math.min(self.mapWidth * TILE_SIZE - VIRTUAL_WIDTH, math.max(self.LastCameraPosition, self.player.x - (VIRTUAL_WIDTH/2 - 8)))
-    -- self.LastCameraPositon = self.cameraPosition
-
     self.cameraPosition = math.min(self.mapWidth * TILE_SIZE - VIRTUAL_WIDTH,
         math.max(self.player.x - (VIRTUAL_WIDTH / 2 - 8),
         self.cameraPosition + self.cameraScrollSpeed * dt)
@@ -103,8 +81,8 @@ function PlayState:render()
 
     love.graphics.push()
 
-    love.graphics.draw(gTextures['backgrounds'], gFrames['backgrounds'][self.background], -self.backgroundX, 0)
-    love.graphics.draw(gTextures['backgrounds'], gFrames['backgrounds'][self.background], -self.backgroundX + 256, 0)
+    love.graphics.draw(gTextures['backgrounds'], gFrames['backgrounds'][self.background], -math.floor(self.backgroundX), 0)
+    love.graphics.draw(gTextures['backgrounds'], gFrames['backgrounds'][self.background], -math.floor(self.backgroundX) + 256, 0)
     love.graphics.translate(-self.cameraPosition, 0)
 
     self.level:render()
@@ -114,4 +92,5 @@ function PlayState:render()
 
     love.graphics.setFont(gFonts['small'])
     love.graphics.print('Score: ' .. tostring(self.player.score), 8, 8)
+
 end

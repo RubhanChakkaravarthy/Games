@@ -11,12 +11,8 @@ function Tile:init(def)
     self.tileset = def.tileset
     self.topperset = def.topperset
     self.topper = def.topper
-    self.collidableTile = def.collidableTile
+    self.collidable = def.collidable
     self.hurtable = def.hurtable
-end
-
-function Tile:collidable()
-    return self.collidableTile
 end
 
 function Tile:render()

@@ -34,15 +34,6 @@ end
 
 function Entity:render()
 
-    -- for debugging
-    -- love.graphics.setColor(1, 0, 0, 1)
-    -- love.graphics.rectangle('line', self.x, self.y, self.width, self.height)
-
-    -- love.graphics.setColor(0, 1, 0, 1)
-    -- love.graphics.rectangle('line', self.x + 2, self.y + 2, self.width, self.height)    
-
-    -- love.graphics.setColor(1, 1, 1, 1)
-
     love.graphics.draw(
         gTextures[self.texture],
         gFrames[self.texture][self.currentAnimation:getCurrentFrame()],

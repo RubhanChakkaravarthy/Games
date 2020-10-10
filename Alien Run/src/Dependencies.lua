@@ -74,6 +74,9 @@ gFrames['waters'] = GenerateTileSets(gFrames['waterQuads'],
     8, 1, 1, 2)
 
 gFonts = {
+    -- for debugging
+    ['x-small'] = love.graphics.newFont('fonts/font.ttf', 6),
+
     ['small'] = love.graphics.newFont('fonts/font.ttf', 8),
     ['medium'] = love.graphics.newFont('fonts/font.ttf', 16),
     ['large'] = love.graphics.newFont('fonts/font.ttf', 32),

@@ -20,7 +20,14 @@ function PlayerFallingState:update(dt)
     local tileBottomRight = self.player.map:pointToTile(self.player.x + self.player.width - 2, self.player.y + self.player.height)
 
     -- if we get a collision beneath us, go into either walking or idle
-    if (tileBottomLeft and tileBottomRight) and (tileBottomLeft:collidable() or tileBottomRight:collidable()) then
+    if (tileBottomLeft and tileBottomRight) and (tileBottomLeft.collidable or tileBottomRight.collidable) then
+
+        if tileBottomLeft.hurtable or tileBottomRight.hurtable then
+            gSounds['death']:play()
+            gStateMachine:change('game-over', {
+                score = self.player.score,
+            })
+        end
 
         self.player.dy = 0
         
