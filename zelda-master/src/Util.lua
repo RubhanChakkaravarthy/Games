@@ -83,9 +83,9 @@ function newPosition(positions, width, height)
 
         local positionOverlapped = false
         position = {
-            x = math.random(MAP_RENDER_OFFSET_X + TILE_SIZE, VIRTUAL_WIDTH - TILE_SIZE * 2 - 16),
-            y = math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE, 
-                VIRTUAL_HEIGHT - MAP_RENDER_OFFSET_Y - TILE_SIZE * 2)
+            x = math.random(MAP_RENDER_OFFSET_X + TILE_SIZE * 2, VIRTUAL_WIDTH - TILE_SIZE * 3),
+            y = math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE * 2, 
+                VIRTUAL_HEIGHT - MAP_RENDER_OFFSET_Y - TILE_SIZE * 3)
         }
 
         for k, pos in pairs(positions) do

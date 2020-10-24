@@ -42,6 +42,8 @@ function Room:init(player, dungeon)
     self.renderOffsetX = MAP_RENDER_OFFSET_X
     self.renderOffsetY = MAP_RENDER_OFFSET_Y
 
+    self.showPickupOption = false
+
     -- used for drawing when this room is the next room, adjacent to the active
     self.adjacentOffsetX = 0
     self.adjacentOffsetY = 0
@@ -153,6 +155,7 @@ function Room:generateObjects()
         )
 
         pot.onCollide = function ()
+            self.showPickupOption = true
             if love.keyboard.wasPressed('e') and not self.player.currentlyLiftingPot and not pot.used then
                 
                 self.player:changeState('pot-lift', {
@@ -210,6 +213,8 @@ function Room:update(dt)
 
     -- don't update anything if we are sliding to another room (we have offsets)
     if self.adjacentOffsetX ~= 0 or self.adjacentOffsetY ~= 0 then return end
+
+    self.showPickupOption = false
 
     self.player:update(dt)
 
@@ -307,6 +312,11 @@ function Room:render()
 
     for k, entity in pairs(self.entities) do
         if not entity.dead then entity:render(self.adjacentOffsetX, self.adjacentOffsetY) end
+    end
+
+    if self.showPickupOption then
+        love.graphics.setFont(gFonts['small'])
+        love.graphics.printf('Press E to pickup pot', VIRTUAL_WIDTH / 2, 8, VIRTUAL_WIDTH / 2, 'center')
     end
 
     -- stencil out the door arches so it looks like the player is going through
